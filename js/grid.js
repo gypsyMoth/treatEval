@@ -189,6 +189,14 @@ define("application/grid", [
                 that.changeYear(-1);
             });
 
+            on(dom.byId("prevForward"), "click", function(evt) {
+                that.changePrevYear(1);
+            });
+
+            on(dom.byId("prevBack"), "click", function(evt) {
+                that.changePrevYear(-1);
+            });
+
 
             var states = this.getStates();
             var years = this.getYears();
@@ -227,6 +235,17 @@ define("application/grid", [
             this.setLayerDefs(map, treatYr, displayYr);
         },
 
+        changePrevYear: function(chg){
+            var treatYr = Number(this.reportYearSelect.get("displayedValue"));
+            var minYr = Number(this.reportYearSelect.options[this.reportYearSelect.options.length - 1].label);
+            var displayYr = Number(dom.byId("map_0_year").innerHTML) + chg;
+            if (displayYr >= treatYr || displayYr < minYr) {
+                return;
+            }
+            var map = this.maps[0].map;
+            this.setLayerDefs(map, treatYr, displayYr);
+        },
+
         setLayerDefs: function(map, trtYr, dispYr) {
             var max = Number(this.reportYearSelect.options[0].label);
             //var layer = map.getLayer(map.layerIds[1]);
@@ -234,9 +253,10 @@ define("application/grid", [
             //alert(map.basemapLayerIds);
             var layerDef = [];
             layerDef[0] = "YEAR = " + dispYr;
-            layerDef[1] = "YEAR = " + trtYr;
-            layerDef[2] = "YEAR = " + dispYr;
+            layerDef[1] = "YEAR = " + dispYr;
+            layerDef[2] = "YEAR = " + trtYr;
             layerDef[3] = "YEAR = " + dispYr;
+            layerDef[4] = "YEAR = " + dispYr;
             map.fLayer.setLayerDefinitions(layerDef);
             //var krig = map.getLayer(map.layerIds[0]);
             var visible = max - dispYr; //this.reportYearSelect.options["2013"].value;
@@ -252,7 +272,7 @@ define("application/grid", [
                 var map = this.maps[1].map;
                 //var layer = map.getLayer(map.layerIds[1]);
                 //var that = this;
-                var url = map.fLayer.url + "/1"// + this.reportYearSelect.value;
+                var url = map.fLayer.url + "/2"// + this.reportYearSelect.value;
                 queryTask = new QueryTask(url);
                 query = new Query();
                 query.returnGeometry = true;

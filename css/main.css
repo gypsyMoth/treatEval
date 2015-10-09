@@ -271,6 +271,24 @@ body {
   right: 3em;
 }
 
+.icon-prevForward {
+  top: 2px;
+  left: 3em;
+}
+
+.icon-prevBack {
+  top: 2px;
+  left: 2em;
+}
+
+.icon-prevForward:before {
+  content: "\300B";
+}
+
+.icon-prevBack:before {
+  content: "\300A";
+}
+
 .icon-forward:before {
   content: "\300B";
 }

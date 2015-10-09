@@ -188,6 +188,20 @@ declare, Color, parser, has, query, registry, win, all, Deffered, lang, arcgisUt
 
 
                         }
+
+                        if (i === 0) {
+                            var prevForward = domConstruct.create("div", {
+                                "id": "prevForward",
+                                "title": "Advance year",
+                                "class": "icon-chg fg icon-prevForward"
+                            }, result.map.id);
+
+                            var prevBack = domConstruct.create("div", {
+                                "id": "prevBack",
+                                "title": "Back one year",
+                                "class": "icon-chg fg icon-prevBack"
+                            }, result.map.id);
+                        }
                 
                         //Create a sync button for each map
                         //when clicked it will sync other maps to that extent. 
