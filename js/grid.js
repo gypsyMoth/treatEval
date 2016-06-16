@@ -24,7 +24,7 @@ define("application/grid", [
 ], function (declare, all, Deferred, request, on, JsonRest, Memory, OnDemandGrid, ColumnHider, DijitRegistry, ColumnResizer, Select, ContentPane, JSON, dom, lang, Query, QueryTask ) {
 
     var server = "http://yt.ento.vt.edu";
-    var appURL = "/SlowTheSpread_test";
+    var appURL = "/SlowTheSpread";
     var queryTask, query;
     //Static methods
     var getText = function (node) {
