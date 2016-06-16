@@ -13,6 +13,7 @@ define("application/grid", [
     "dgrid/extensions/DijitRegistry",
     "dgrid/extensions/ColumnResizer",
     "dijit/form/Select",
+    "dijit/form/Button",
     "dijit/layout/ContentPane",
     "dojo/json",
     "dojo/dom",
@@ -21,7 +22,7 @@ define("application/grid", [
     "esri/tasks/query",
     "esri/tasks/QueryTask",
     "dojo/domReady!"
-], function (declare, all, Deferred, request, on, JsonRest, Memory, OnDemandGrid, ColumnHider, DijitRegistry, ColumnResizer, Select, ContentPane, JSON, dom, lang, Query, QueryTask ) {
+], function (declare, all, Deferred, request, on, JsonRest, Memory, OnDemandGrid, ColumnHider, DijitRegistry, ColumnResizer, Select, Button, ContentPane, JSON, dom, lang, Query, QueryTask ) {
 
     var server = "http://yt.ento.vt.edu";
     var appURL = "/SlowTheSpread";
@@ -51,6 +52,7 @@ define("application/grid", [
         reportStateSelect: null,
         reportYearSelect: null,
         reportSelect: null,
+        reportDownload: null,
         grid: null,
         restStore: null,
         stateStore: null,
@@ -67,7 +69,7 @@ define("application/grid", [
                 that.reportYearSelect = new Select({
                     id: "reportYearSelect",
                     labelAttr: "label",
-                    options: response,
+                    options: response
                 }, "reportYearSelect");
                 d.resolve();
             }, function (err) {
@@ -110,6 +112,11 @@ define("application/grid", [
                 ]
             }, "reportSelect");
             //that.reportSelect.on("change", that.update);
+        },
+
+        createDownloadButton: function() {
+            var that = this;
+            that.reportDownload = new Button({id:"reportDownload", label:"Download"}, "reportDownload");
         },
 
         update: function () {
@@ -170,6 +177,7 @@ define("application/grid", [
 
             this.memStore = new Memory();
 
+            this.createDownloadButton();
             this.getReports();
             this.grid = new (declare([OnDemandGrid, DijitRegistry, ColumnHider, ColumnResizer]))({
                 id: "grid",
@@ -199,21 +207,23 @@ define("application/grid", [
                 that.changePrevYear(-1);
             });
 
-
             var states = this.getStates();
             var years = this.getYears();
             all({ years: years, states: states }).then(function (result) {
                 that.content.addChild(that.reportYearSelect);
                 that.content.addChild(that.reportStateSelect);
                 that.content.addChild(that.reportSelect);
+                that.content.addChild(that.reportDownload);
                 that.content.addChild(that.grid);
                 that.content.startup();
                 var updateThis = lang.hitch(that, that.update);
                 on(that.reportSelect, "change", updateThis);
                 on(that.reportYearSelect, "change", function(){updateThis(); that.updateLayers()});
                 on(that.reportStateSelect, "change", updateThis);
+                on(that.reportDownload, "click", function(){that.downloadReport()});
                 updateThis();
                 that.updateLayers();
+
             });
         },
 
@@ -285,6 +295,30 @@ define("application/grid", [
                 });
             }//var deferred = new dojo.DeferredList(qList);
             //deferred.then(map.setExtent(results[0][1].features[0].geometry.getExtent().expand(2)););
+        },
+
+        downloadReport: function () {
+
+            //dojo.byId("treatGrid").style.cursor = "wait";
+            var state = this.reportStateSelect.get("displayedValue");
+            var report = this.reportSelect.get("value");
+            var year = this.reportYearSelect.get("displayedValue");
+
+            if (state === "All") {
+                state = "";
+            }
+
+            var url = server + appURL + "/" + report + "/" + year + "/" + state + "?format=csv";
+
+            var iframe = document.getElementById('downloadFrame');
+            if (iframe === null){
+                iframe = document.createElement('iframe');
+                iframe.id = 'downloadFrame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+            iframe.src = url;
+
         }
 
     });
