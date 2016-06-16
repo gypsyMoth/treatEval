@@ -23,7 +23,8 @@ define("application/grid", [
     "dojo/domReady!"
 ], function (declare, all, Deferred, request, on, JsonRest, Memory, OnDemandGrid, ColumnHider, DijitRegistry, ColumnResizer, Select, ContentPane, JSON, dom, lang, Query, QueryTask ) {
 
-    var server = "http://yt.ento.vt.edu"
+    var server = "http://yt.ento.vt.edu";
+    var appURL = "/SlowTheSpread_test";
     var queryTask, query;
     //Static methods
     var getText = function (node) {
@@ -60,7 +61,7 @@ define("application/grid", [
         getYears: function () {
             var d = new Deferred();
             that = this;
-            request(server + "/SlowTheSpread_test/CatchYears?format=json", {
+            request(server + appURL + "/CatchYears?format=json", {
                 handleAs: "json"
             }).then(function (response) {
                 that.reportYearSelect = new Select({
@@ -78,7 +79,7 @@ define("application/grid", [
         getStates: function () {
             var d = new Deferred();
             var that = this;
-            request(server + "/SlowTheSpread_test/States?format=json", {
+            request(server + appURL + "/States?format=json", {
                 handleAs: "json"
             }).then(function (response) {
                 var optionAll = { value: "", label: "All", selected: false };
@@ -104,7 +105,8 @@ define("application/grid", [
                     { value: "treatmentEvaluation", label: "Treatment Evaluation" },
                     { value: "treatmentEvaluationDetail", label: "Treatment Evaluation Detail" },
                     { value: "treatmentEvaluationTrapDetail", label: "Trap-Based Treatment Evaluation Detail" },
-                    { value: "treatmentEvaluationComparison", label: "Treatment Evaluation Comparison" }
+                    { value: "treatmentEvaluationComparison", label: "Treatment Evaluation Comparison" },
+                    { value: "treatmentEvaluationStats", label: "Treatment Evaluation Stats (Raw)" }
                 ]
             }, "reportSelect");
             //that.reportSelect.on("change", that.update);
@@ -113,7 +115,7 @@ define("application/grid", [
         update: function () {
             var that = this;
             //dojo.byId("treatGrid").style.cursor = "wait";
-            var baseUrl = server + "/SlowTheSpread_test/";
+            var baseUrl = server + appURL;
             var state = this.reportStateSelect.get("displayedValue");
             var report = this.reportSelect.get("value");
             var year = this.reportYearSelect.get("displayedValue");
@@ -122,7 +124,7 @@ define("application/grid", [
                 state = "";
             }
 
-            var url = baseUrl + report + "/" + year + "/" + state + "?format=json";
+            var url = baseUrl + "/" + report + "/" + year + "/" + state + "?format=json";
 
             this.restStore = new JsonRest({ target: url, idProperty: "id" });
             this.restStore.query().then(function (response) {
@@ -137,7 +139,7 @@ define("application/grid", [
                 that.grid.set("columns", cols);
 
                 // Formatting for PPAs / Treatments
-                if (report.toUpperCase() === "TREATMENTS" || report.toUpperCase().match(/TREATMENTEVALUATION(DETAIL|TRAPDETAIL|COMPARISON)?/g)) {
+                if (report.toUpperCase() === "TREATMENTS" || report.toUpperCase().match(/TREATMENTEVALUATION(DETAIL|TRAPDETAIL|STATS|COMPARISON)?/g)) {
                     that.grid.columns.blockname.renderCell = function (object, value, node, options) {
                         node.innerHTML = "<a href='javascript:;'>" + value + "</a>";
                     }
@@ -255,8 +257,9 @@ define("application/grid", [
             layerDef[0] = "YEAR = " + dispYr;
             layerDef[1] = "YEAR = " + dispYr;
             layerDef[2] = "YEAR = " + trtYr;
-            layerDef[3] = "YEAR = " + dispYr;
+            layerDef[3] = "YEAR = " + trtYr;
             layerDef[4] = "YEAR = " + dispYr;
+            layerDef[5] = "YEAR = " + dispYr;
             map.fLayer.setLayerDefinitions(layerDef);
             //var krig = map.getLayer(map.layerIds[0]);
             var visible = max - dispYr; //this.reportYearSelect.options["2013"].value;
